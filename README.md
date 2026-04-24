@@ -36,9 +36,6 @@ It includes examples such as watch, timer, and simple piano apps.
 
 ## NTP Settings (`M5Dial_watch_mod`)
 
-Wi-Fi and NTP settings are hardcoded in the sketch.
-Update them before uploading:
-
 - `ssid`
 - `password`
 - `ntpServer`

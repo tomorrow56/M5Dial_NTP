@@ -36,9 +36,6 @@
 
 ## NTP 設定（`M5Dial_watch_mod`）
 
-Wi-Fi と NTP 設定はスケッチ内に直接書かれています。
-利用前に以下を環境に合わせて変更してください。
-
 - `ssid`
 - `password`
 - `ntpServer`
