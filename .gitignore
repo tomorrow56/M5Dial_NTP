@@ -1,0 +1,22 @@
+# macOS metadata
+.DS_Store
+._*
+
+# Arduino build artifacts
+*.o
+*.obj
+*.elf
+*.bin
+*.hex
+*.map
+*.d
+*.a
+
+# Arduino IDE / CLI temporary files
+*.tmp
+*.bak
+
+# Local editor files
+.vscode/
+.idea/
+*.swp
