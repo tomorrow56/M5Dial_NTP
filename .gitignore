@@ -1,6 +1,7 @@
 # macOS metadata
 .DS_Store
 ._*
+**/._*
 
 # Arduino build artifacts
 *.o
