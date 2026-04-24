@@ -45,6 +45,4 @@ Update them before uploading:
 
 ## Notes
 
-- This repository may include macOS `._*` metadata files.
-  Exclude/clean them if needed.
 - Font headers (`Noto.h`, etc.) are required by watch sketches.
