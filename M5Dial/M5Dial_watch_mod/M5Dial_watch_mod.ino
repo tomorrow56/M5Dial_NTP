@@ -39,17 +39,16 @@ int sy=120;
 #include <WiFi.h>
 //#include <TimeLib.h>        // https://forum.arduino.cc/index.php?topic=415296.0
 #include "time.h"
+#include <sys/time.h>
 
 const char* ssid       = "<your_ssid>";
 const char* password   = "<your_password>";
 IPAddress ipadr;
 
-const char* ntpServer = "ntp.jst.mfeed.ad.jp";
-const long  gmtOffset_sec = 9 * 3600;  // JST = UTC + 9
-const int   daylightOffset_sec = 0;
+const char* ntpServer = "ntp.nict.jp";
+constexpr time_t kJstOffsetSeconds = 9 * 60 * 60;
 int hh, mm, ss;
 int yy, mon, dd;
-int retry = 5;
 
 String cc[12]={"45","40","35","30","25","20","15","10","05","0","55","50"};
 String days[]={"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
@@ -90,42 +89,30 @@ void setup()
   }
   Serial.println(" CONNECTED");
 
-  //init and get the time from ntp
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  // M5Dial restores the RTC into system time at boot. Clear that value first,
+  // otherwise getLocalTime can accept it before an NTP response arrives and
+  // apply the JST offset again on every restart.
+  const timeval invalidTime = {0, 0};
+  settimeofday(&invalidTime, nullptr);
+  configTime(0, 0, ntpServer);
 
-  struct tm timeinfo;
-// int tm_sec;   /* 秒 － [0, 60/61] */
-// int tm_min;   /* 分 － [0, 59] */
-// int tm_hour;  /* 時 － [0, 23] */
-// int tm_mday;  /* 日 － [1, 31] */
-// int tm_mon;   /* 1月からの月数 － [0, 11] */
-// int tm_year;  /* 1900年からの年数 */
-// int tm_wday;  /* 日曜日からの日数 － [0, 6] */
-// int tm_yday;  /* 1月1日からの日数 － [0, 365] */
-// int tm_isdst; /* 夏時間フラグ */
-
-  for(int i = 0; i < retry; i++)
-  {
-    if(!getLocalTime(&timeinfo))
-    {
-      Serial.println("Failed to obtain time");
-      if(i == retry - 1)
-      {
-        return;
-      }
-    }else{
-      Serial.println("Connected to NTP Server!");
-      break;
-    }
+  struct tm utcTime;
+  if (!getLocalTime(&utcTime, 15000)) {
+    Serial.println("Failed to obtain time from NTP server");
+    return;
   }
-  
-  yy = 1900 + timeinfo.tm_year;
-  mon = timeinfo.tm_mon + 1;
-  dd = timeinfo.tm_mday;
- 
-  hh = timeinfo.tm_hour;
-  mm = timeinfo.tm_min;
-  ss = timeinfo.tm_sec;
+  Serial.println("Connected to NTP Server!");
+
+  const time_t jstEpoch = time(nullptr) + kJstOffsetSeconds;
+  struct tm jstTime;
+  gmtime_r(&jstEpoch, &jstTime);
+
+  yy = 1900 + jstTime.tm_year;
+  mon = jstTime.tm_mon + 1;
+  dd = jstTime.tm_mday;
+  hh = jstTime.tm_hour;
+  mm = jstTime.tm_min;
+  ss = jstTime.tm_sec;
 
   //disconnect WiFi as it's no longer needed
   WiFi.disconnect(true);
